@@ -16,19 +16,19 @@ lastOdomReading = None
 
 #callback functions to process data from subscribed range and topics
 def rangeF_received(data):
-    global lastF 
+    global lastF
     lastF = data
 
 def rangeL_received(data):
-    global lastL 
+    global lastL
     lastL = data
 
 def rangeR_received(data):
-    global lastR 
+    global lastR
     lastR = data
 
 def odometryReceived(data):
-    global lastOdomReading 
+    global lastOdomReading
     lastOdomReading = data
 
 #main function of the node
@@ -46,15 +46,15 @@ def swarmrobot():
     pub = rospy.Publisher('cmd_vel_stamped', TwistStamped)
 
     r = rospy.Rate(10) #an object to maintain specific frequency of a control loop - 10hz
-    
+
     cmd = TwistStamped() #command that will be sent to Stage (published)
-    
+
     while not rospy.is_shutdown():
         if lastF == None or lastL == None or lastR == None or lastOdomReading == None:
             print 'waiting for ranges and odom to become available'
             r.sleep()
-            continue 
-        # default speeds, 
+            continue
+        # default speeds,
         cmd.twist.linear.x = 0 # forward
         cmd.twist.linear.z = 0 # up/down
         cmd.twist.angular.z = 0 # left/right
@@ -67,8 +67,8 @@ def swarmrobot():
         #
         # OUTPUT:
         #   Only Thrust(cmd.twist.linear.x), Buoyance(cmd.twist.linear.z) and Turning(cmd.twist.angular.z)
-         
-        #Obstacle Avoidance behavior        
+
+        #Obstacle Avoidance behavior
         OAforward = max(0,lastF.range - 0.5)
         OAupdown = 0
         OAleftright = lastL.range-lastR.range
@@ -101,7 +101,7 @@ def swarmrobot():
         r.sleep()
         #end of loop
     #end of function
-        
+
 #entry point of the executable
 #calling the main node function of the node only if this .py file is executed directly, not imported
 if __name__ == '__main__':

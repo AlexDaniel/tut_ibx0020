@@ -50,7 +50,7 @@
       <x>3.4</x>
       <y>2.4 </y>
       <z>-0.2 </z>
-    </position> 
+    </position>
     <lookAt>
       <x>3.3</x>
       <y>2.3 </y>
@@ -468,4 +468,3 @@
 
   </rosInterfaces>
 </UWSimScene>
-

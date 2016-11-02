@@ -12,7 +12,7 @@ class laser2sonarirlaser:
         self.rate = rate
         self.sensor_num = sensor_num
         self.radius = radius
-        
+
         rospy.init_node('laser2sonar')
         self.rng = Range()
         self.laserData = None
@@ -24,18 +24,18 @@ class laser2sonarirlaser:
         self.pub_laser = rospy.Publisher('laser', LaserScan, queue_size=self.sensor_num)
         self.pub_tf = tf.TransformBroadcaster()
         rospy.Subscriber("base_scan", LaserScan, self.callback_LaserScan)
-  
+
     def callback_LaserScan(self, data):
         self.laserData = data
         total_angle = self.laserData.angle_max-self.laserData.angle_min
         ln = len(self.laserData.ranges)
         step = ln/self.sensor_num;
-        rng = self.rng 
-        rng.min_range = max(0,data.range_min-self.radius) 
+        rng = self.rng
+        rng.min_range = max(0,data.range_min-self.radius)
         rng.max_range = max(0,data.range_max-self.radius)
         rng.header.stamp = rospy.get_rostime()
         rng.header.seq += 1
-        for idx in range(self.sensor_num):    
+        for idx in range(self.sensor_num):
             rng.header.frame_id = 'range_'+str(idx)
             rng.range = data.range_max;
             for i in range(idx*step, (idx+1)*step):
@@ -45,14 +45,14 @@ class laser2sonarirlaser:
             rng.radiation_type = Range.ULTRASOUND
             rng.field_of_view = total_angle/self.sensor_num
             self.pub_sonar[idx].publish(rng)
-            
+
             rng.radiation_type = Range.INFRARED
             rng.field_of_view = data.angle_increment
             rng.range = data.ranges[idx*step + step/2];
             rng.range*=random.uniform(0.9, 1.1)
             rng.range = max(0,rng.range-self.radius)
             self.pub_ir[idx].publish(rng)
-        
+
         ranges = data.ranges
         self.laserData.ranges=[];
         for i in range(ln):
@@ -68,7 +68,7 @@ class laser2sonarirlaser:
 	angle = self.laserData.angle_min+stepRad*(idx+0.5)
 	self.pub_tf.sendTransform((math.cos(angle)*self.radius, math.sin(angle)*self.radius, 0.00), tf.transformations.quaternion_about_axis(angle, (0,0,1)), rospy.get_rostime(), frame_id, 'base_laser_link' )
 
-              
+
     def run(self):
 	rospy.spin()
 

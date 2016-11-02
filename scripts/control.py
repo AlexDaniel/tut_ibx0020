@@ -12,7 +12,7 @@ def normalizeAngle(a):
     while a < -math.pi:
         a += 2.0*math.pi
     while a >  math.pi:
-        a -= 2.0*math.pi	 
+        a -= 2.0*math.pi
     return a
 
 #global variable to store the last received odometry reading
@@ -20,7 +20,7 @@ lastOdomReading = None
 
 #callback function to process data from subscribed Odometry topic
 def odometryReceived(data):
-    global lastOdomReading 
+    global lastOdomReading
     lastOdomReading = data
 
 #main function of the node
@@ -33,7 +33,7 @@ def control():
     pub_p = rospy.Publisher('p', Float64)
 
     r = rospy.Rate(10) #an object to maintain specific frequency of a control loop - 10hz
-    
+
     #getting coefficients from Parameter Server (with defaults, if no coefficient is set)
     Kp = rospy.get_param('Kp',0.3)
     Ka = rospy.get_param('Ka',0.8)
@@ -47,13 +47,13 @@ def control():
     rospy.loginfo('Goal: x='+str(goal_x)+', y='+str(goal_y)+', th='+str(goal_th))
 
     cmd = Twist() #command that will be sent to Stage (published)
-    
+
     while not rospy.is_shutdown():
         if lastOdomReading == None:#we cannot issue any commands until we have our position
             print 'waiting for lastOdomReading to become available'
             r.sleep()
-            continue 
-        
+            continue
+
         #current robot 2D coordinates and orientation
         pose = lastOdomReading.pose.pose #robots current pose (position and orientation)
         x = pose.position.x
@@ -71,20 +71,20 @@ def control():
             #if we are acceptably close to the goal, we can exit
             print 'Reached destination'
             break
-        
+
         #control equations (slide 25)
         p = math.sqrt(dx*dx + dy*dy)
-        a = normalizeAngle(-th + math.atan2(dy,dx)) 
+        a = normalizeAngle(-th + math.atan2(dy,dx))
         b = normalizeAngle(-th - a)
         #control equations (slide 26)
         v = Kp*p #translational speed in m/s
         w = normalizeAngle(Ka*a + Kb*b) #rotational speed in rad/s
         #setting command fields
-        cmd.linear.x = v 
-        cmd.angular.z = w 
+        cmd.linear.x = v
+        cmd.angular.z = w
         #publishing command to a robot
         pub.publish(cmd);
-    
+
         #publishing p for rqt_plot
         p_ = Float64()
         p_.data = p
@@ -94,7 +94,7 @@ def control():
         r.sleep()
         #end of loop
     #end of function
-        
+
 #entry point of the executable
 #calling the main node function of the node only if this .py file is executed directly, not imported
 if __name__ == '__main__':
