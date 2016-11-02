@@ -60,17 +60,17 @@ class laser2sonarirlaser:
 
         self.pub_laser.publish(self.laserData)
 
-	total_angle = self.laserData.angle_max-self.laserData.angle_min
-	stepRad = total_angle/self.sensor_num;
-	idx = rng.header.seq % self.sensor_num
-	frame_id = 'range_'+str(idx)
-	print frame_id
-	angle = self.laserData.angle_min+stepRad*(idx+0.5)
-	self.pub_tf.sendTransform((math.cos(angle)*self.radius, math.sin(angle)*self.radius, 0.00), tf.transformations.quaternion_about_axis(angle, (0,0,1)), rospy.get_rostime(), frame_id, 'base_laser_link' )
+        total_angle = self.laserData.angle_max-self.laserData.angle_min
+        stepRad = total_angle/self.sensor_num;
+        idx = rng.header.seq % self.sensor_num
+        frame_id = 'range_'+str(idx)
+        print frame_id
+        angle = self.laserData.angle_min+stepRad*(idx+0.5)
+        self.pub_tf.sendTransform((math.cos(angle)*self.radius, math.sin(angle)*self.radius, 0.00), tf.transformations.quaternion_about_axis(angle, (0,0,1)), rospy.get_rostime(), frame_id, 'base_laser_link' )
 
 
     def run(self):
-	rospy.spin()
+        rospy.spin()
 
 
 if __name__ == '__main__':
